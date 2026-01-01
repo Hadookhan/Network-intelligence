@@ -8,8 +8,10 @@ class Graph:
     def __init__(self, topology):
         self.topology = get_topology(topology)
         self.vertices = {}
+        self.__build_graph()
     
-    def build_graph(self):
+    # Builds current topology from JSON
+    def __build_graph(self):
         nodes = self.topology["nodes"]
         links = self.topology["links"]
 
@@ -28,6 +30,8 @@ class Graph:
         self.vertices[node1][node2] = weight
         self.vertices[node2][node1] = weight
         
+    def get_nodes(self):
+        return self.vertices
 
     def display_graph(self):
         print(self.vertices)

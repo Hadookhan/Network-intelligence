@@ -7,6 +7,8 @@ def main():
     graph = Graph(topology)
     
     pf = PathFinder(graph)
+    nodeID = "DnsRouter"
+    print(pf.dijkstras(nodeID))
 
 if __name__ == "__main__":
     main()
