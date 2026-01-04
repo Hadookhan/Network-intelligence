@@ -20,6 +20,7 @@ class PathFinder:
     def __init__(self, graph):
         self.graph = graph
 
+    # Dijkstras defines the graphs performance
     # Simulates OSPF Routing
     def dijkstras(self, start_id):
         adj = self.graph.get_nodes()
@@ -52,9 +53,10 @@ class PathFinder:
                     previous[neighbour_id] = current_id
                     hq.heappush(heap, HeapItem(neighbour_id, new_dist))
 
-        return distances, previous
+        # returns distances in order and performance metric in tuple
+        return distances, sum(distances[loc] for loc in distances)/len(distances)
 
-    # BFS + DFS will help identify all traversable nodes in the graph
+    # BFS + DFS will help identify all traversable nodes in the graph (defines graphs connectivity)
 
     def BFS(self, start_id):
         queue = Queue()
@@ -83,7 +85,6 @@ class PathFinder:
 
         while len(stack) > 0:
             cur_id = stack.pop()
-            print(cur_id)
             neighbours = self.graph.get_nodes()[cur_id]
 
             for neighbour_id in neighbours:

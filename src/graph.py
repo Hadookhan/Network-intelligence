@@ -1,5 +1,4 @@
 from load_topology import extract_topology
-from node import Node
 
 def get_topology(topology):
     return extract_topology(topology)
@@ -29,9 +28,27 @@ class Graph:
     def add_edge(self, node1, node2, weight):
         self.vertices[node1][node2] = weight
         self.vertices[node2][node1] = weight
+
+    # for simulating failures in graph links
+    def remove_node(self, node):
+        if node not in self.vertices:
+            raise ValueError("Node does not exist")
+        for node2 in self.vertices:
+            if node2 in self.vertices[node]:
+                self.remove_edge(node, node2)
+        
+        del self.vertices[node]
+    
+    def remove_edge(self, node1, node2):
+        del self.vertices[node1][node2]
+        del self.vertices[node2][node1]
         
     def get_nodes(self):
         return self.vertices
+    
+    def get_edges(self, node):
+        return self.vertices[node]
+
 
     def display_graph(self):
         print(self.vertices)
@@ -39,17 +56,6 @@ class Graph:
     def display_all_nodes(self):
         for node in self.vertices:
             print(node)
-
-    ### TODO: FIX
-    def display_all_edges(self):
-        nodes = self.topology["nodes"]
-
-        edges = set()
-        for node in nodes:
-            for edge in self.vertices[node["id"]]:
-                if (node['id'], edge) not in edges:
-                    print(f"{node['id']} -> {edge}")
-                    edges.add((node['id'], edge))
 
 
 # top = "topology.json"
