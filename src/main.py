@@ -9,6 +9,8 @@ def main():
     pf = PathFinder(graph)
     nodeID = "DnsRouter"
     print(pf.dijkstras(nodeID))
+    print(pf.BFS(nodeID))
+    print(pf.DFS(nodeID))
 
 if __name__ == "__main__":
     main()

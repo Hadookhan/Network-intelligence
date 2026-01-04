@@ -1,4 +1,5 @@
 import heapq as hq # importing in-built heap for efficient Dijkstras
+from queue import Queue # built-in queue for BFS
 
 class HeapItem:
     def __init__(self, nodeID, distance):
@@ -53,8 +54,40 @@ class PathFinder:
 
         return distances, previous
 
-    def BFS(self):
-        pass
+    # BFS + DFS will help identify all traversable nodes in the graph
 
-    def DFS(self):
-        pass
+    def BFS(self, start_id):
+        queue = Queue()
+        visited = set()
+        
+        queue.put(start_id)
+        visited.add(start_id)
+
+        while queue.qsize() > 0:
+            cur_id = queue.get()
+            neighbours = self.graph.get_nodes()[cur_id]
+
+            for neighbour_id in neighbours:
+                if neighbour_id not in visited:
+                    queue.put(neighbour_id)
+                    visited.add(neighbour_id)
+        return visited
+
+
+    def DFS(self, start_id):
+        stack = []
+        visited = set()
+
+        stack.append(start_id)
+        visited.add(start_id)
+
+        while len(stack) > 0:
+            cur_id = stack.pop()
+            print(cur_id)
+            neighbours = self.graph.get_nodes()[cur_id]
+
+            for neighbour_id in neighbours:
+                if neighbour_id not in visited:
+                    stack.append(neighbour_id)
+                    visited.add(neighbour_id)
+        return visited
