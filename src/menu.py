@@ -14,17 +14,17 @@ def Display_Menu():
             case 1:
                 g.display_graph()
             case 2:
-                add_node(g)
+                __add_node(g)
             case 3:
-                add_edge(g)
+                __add_edge(g)
             case 4:
-                remove_node(g)
+                __remove_node(g)
             case 5:
-                remove_edge(g)
+                __remove_edge(g)
             case 6:
-                view_metrics(g)
+                __view_metrics(g)
             case 7:
-                pass
+                __testing(g)
             case 8:
                 return
             case _:
@@ -46,14 +46,14 @@ def __command():
                 "8. Exit\n"
             ))
     except:
-        return None
+        return
     
     if cmd <= 0 or cmd >= 9:
-        return None
+        return
 
     return cmd
 
-def add_node(graph):
+def __add_node(graph):
     valid_types = ["switch","router"]
     node_id = input("Enter new node name: ")
     node_type = input("Is the new node a Switch (s) or a Router (r)? ")
@@ -75,7 +75,7 @@ def add_node(graph):
 
     return
 
-def add_edge(graph):
+def __add_edge(graph):
     node1 = input("Enter first node: ")
     node2 = input("Enter second node: ")
 
@@ -98,7 +98,7 @@ def add_edge(graph):
     print(f"Added edge ({node1} - {node2}) Cost: {weight}")
     return
 
-def remove_node(graph):
+def __remove_node(graph):
     node_id = input("Enter node: ")
     if node_id not in graph.get_nodes():
         print("Node does not exist in current graph. Going back...")
@@ -107,7 +107,7 @@ def remove_node(graph):
     print("Node removed.")
     return
 
-def remove_edge(graph):
+def __remove_edge(graph):
     node1 = input("Enter first node: ")
     node2 = input("Enter second node: ")
 
@@ -123,10 +123,49 @@ def remove_edge(graph):
     print("Edge removed.")
     return
 
-def view_metrics(graph):
+def __view_metrics(graph):
     nodeToEdgeRatio = node_to_edge_ratio(graph)
     avgConnectivity = average_connectivity(graph)
 
     print(f"Node-to-Edge Ratio: {nodeToEdgeRatio}")
     print(f"Average Connectivity: {avgConnectivity}")
+
+def __testing(graph):
+    print("Please choose a test to run...\n")
+    pf = PathFinder(graph)
+    graph_nodes = graph.get_nodes()
+
+    while True:
+        try:
+            cmd = int(input(
+                "1. Performance Test (Dijkstras): \n" \
+                "2. Connectivity Test (BFS): \n"
+            ))
+        except:
+            print("Invalid command. Going back...")
+            continue
+        if cmd == 1:
+            start_node = input("Please enter a starting Node: ")
+            if start_node not in graph_nodes:
+                print("Node does not exist.")
+                continue
+            fastest_path = pf.dijkstras(start_node)
+            for i, node in enumerate(fastest_path):
+                print(f"{i+1} : {node}")
+            return
+        if cmd == 2:
+            start_node = input("Please enter a starting Node: ")
+            if start_node not in graph_nodes:
+                print("Node does not exist.")
+                continue
+            traversed_graph = pf.BFS(start_node)
+            for i, node in enumerate(traversed_graph):
+                print(f"{i+1} : {node}")
+            return
+
+        
+        
+        
+
+        
     

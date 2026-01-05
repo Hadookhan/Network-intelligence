@@ -53,8 +53,8 @@ class PathFinder:
                     previous[neighbour_id] = current_id
                     hq.heappush(heap, HeapItem(neighbour_id, new_dist))
 
-        # returns distances in order and performance metric in tuple
-        return distances, sum(distances[loc] for loc in distances)/len(distances)
+        # returns distances in order
+        return distances
 
     # BFS + DFS will help identify all traversable nodes in the graph (defines graphs connectivity)
 
