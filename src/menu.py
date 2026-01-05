@@ -2,9 +2,6 @@ from pathfinder import PathFinder
 from engine import Intelligence
 from graph import Graph
 from metric import *
-import os
-
-cur_dir = os.getcwd()
 
 
 def Display_Menu():
@@ -12,7 +9,7 @@ def Display_Menu():
     print("NETWORK INTELLIGENCE PROGRAM")
     print("-----------------------------------")
 
-    topology = f"{cur_dir}/topology.json"
+    topology = "topology.json"
     g = Graph(topology)
     while True:
         cmd = __command()
