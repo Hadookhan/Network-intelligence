@@ -16,16 +16,24 @@ class Graph:
 
         # Stores each node ID in hashtable with array of its links
         for node in nodes:
-            self.add_node(node)
+            nodeID = node["id"]
+            nodeType = node["type"]
+            nodeSite = node["site"]
+            self.add_node(nodeID, nodeType, nodeSite)
 
         # Appends all links to corresponding node (undirected graph joins links both ways)
         for link in links:
             self.add_edge(link["source"], link["target"], link["cost"])
     
-    def add_node(self, node):
-        self.vertices[node["id"]] = {}
+    def add_node(self, nodeID, type, site):
+        self.vertices[nodeID] = {}
+        # Add persistence here...
 
     def add_edge(self, node1, node2, weight):
+        if node1 not in self.vertices or node2 not in self.vertices:
+            raise ValueError("One or both nodes are not in the graph")
+        if node2 in self.vertices[node1]:
+            raise ValueError("Nodes are already connected")
         self.vertices[node1][node2] = weight
         self.vertices[node2][node1] = weight
 
@@ -51,7 +59,8 @@ class Graph:
 
 
     def display_graph(self):
-        print(self.vertices)
+        for node in self.vertices:
+            print(f"{node} -> {self.vertices[node]}")
 
     def display_all_nodes(self):
         for node in self.vertices:

@@ -2,6 +2,7 @@ from pathfinder import PathFinder
 from engine import Intelligence
 from graph import Graph
 from metric import *
+from menu import Display_Menu
 
 def main():
     topology = "topology.json"
@@ -23,5 +24,7 @@ def main():
     print(f"Connectivity: {pf.BFS(nodeID)}")
     print(f"Node to Edge ratio: {node_to_edge_ratio(graph)}")
     print(f"Average Connectivity: {average_connectivity(graph)}")
+
+    Display_Menu()
 if __name__ == "__main__":
     main()
