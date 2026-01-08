@@ -1,11 +1,8 @@
 from load_topology import extract_topology
 
-def get_topology(topology):
-    return extract_topology(topology)
-
 class Graph:
     def __init__(self, topology):
-        self.topology = get_topology(topology)
+        self.topology = extract_topology(topology)
         self.vertices = {}
         self.__build_graph()
     

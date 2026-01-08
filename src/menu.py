@@ -60,6 +60,9 @@ def __command():
 def __add_node(graph):
     valid_types = ["switch","router"]
     node_id = input("Enter new node name: ")
+    if node_id in graph.get_nodes():
+        print("Node name already exists. Going back...")
+        return
     node_type = input("Is the new node a Switch (s) or a Router (r)? ")
     
     if node_type.lower() == "s" or node_type.lower() == "switch":
@@ -130,9 +133,17 @@ def __remove_edge(graph):
 def __view_metrics(graph):
     nodeToEdgeRatio = node_to_edge_ratio(graph)
     avgConnectivity = average_connectivity(graph)
+    nearestNeighbourFreq = nearest_neighbour_frequency(graph)
+    betweenessCentrality = betweeness_centrality(graph)
 
     print(f"Node-to-Edge Ratio: {nodeToEdgeRatio}")
     print(f"Average Connectivity: {avgConnectivity}")
+    print(f"Betweeness Centrality : {betweenessCentrality}")
+    print(f"Nearest-Neighbour Frequency:")
+    for node in nearestNeighbourFreq:
+        print(f"    • {node} is the nearest neighbour to {len(nearestNeighbourFreq[node])} nodes {f': {nearestNeighbourFreq[node]}' if nearestNeighbourFreq[node] else ''}")
+    
+    betweeness_centrality(graph)
 
 def __testing(graph):
     print("Please choose a test to run...\n")
@@ -143,7 +154,7 @@ def __testing(graph):
         try:
             cmd = int(input(
                 "1. Performance Test (Dijkstras): \n" \
-                "2. Connectivity Test (BFS): \n"
+                "2. Connectivity Test (BFS): \n" 
             ))
         except:
             print("Invalid command. Going back...")
@@ -153,9 +164,10 @@ def __testing(graph):
             if start_node not in graph_nodes:
                 print("Node does not exist.")
                 continue
-            fastest_path = pf.dijkstras(start_node)
+            fastest_path, _ = pf.dijkstras(start_node)
             for i, node in enumerate(fastest_path):
-                print(f"{i+1} : {node}")
+                print(f"{i+1} : {start_node} -> {node} = {fastest_path[node]}")
+
             return
         if cmd == 2:
             start_node = input("Please enter a starting Node: ")
