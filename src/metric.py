@@ -46,12 +46,12 @@ def nearest_neighbour_frequency(graph: Graph) -> dict:
 
 def betweenness_centrality(graph: Graph) -> dict:
     """
-    Calculates the betweeness centrality for all nodes in graph 
+    Calculates the betweenness centrality for all nodes in graph 
     then stores and returns them in a dictionary.
     """
     pf = PathFinder(graph)
 
-    return pf.brandes()
+    return pf.brandes()[0]
         
 def degree_centrality(graph: Graph) -> dict:
     """
@@ -135,7 +135,13 @@ def average_shortest_path(graph: Graph) -> float:
 
 
 def edge_betweenness(graph: Graph):
-    pass
+    """
+    Calculates the edge betweenness for all nodes in graph 
+    then stores and returns them in a dictionary.
+    """
+    pf = PathFinder(graph)
+
+    return pf.brandes()[1]
 
 def flow_count(graph: Graph):
     pass

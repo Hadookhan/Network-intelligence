@@ -84,7 +84,6 @@ class PathFinder:
         
         queue.put(start_id)
         visited.add(start_id)
-        cur_weight = 0
 
         while queue.qsize() > 0:
             cur_id = queue.get()
@@ -115,7 +114,15 @@ class PathFinder:
     
     def brandes(self):
         V = list(self.graph.get_nodes().keys())
-        CB = {v: 0.0 for v in V}
+        CB = {v: 0.0 for v in V} # Betweenness centrality
+        
+        EB = {} # Edge betweenness
+        for u in V:
+            for v in self.graph.get_edges(u):
+                if u == v:
+                    continue
+                e = (u,v) if u < v else (v,u)
+                EB[e] = 0
 
         for s in V:
             # Dijkstra + pred + sigma + stack order
@@ -127,21 +134,31 @@ class PathFinder:
             # Process nodes in reverse order of distance from s
             while S:
                 w = S.pop()
-                for v in pred[w]:
-                    # fraction of shortest paths via v
-                    if sigma[w] != 0:
-                        delta_contrib = (sigma[v] / sigma[w]) * (1.0 + delta[w])
-                        delta[v] += delta_contrib
 
-                # Don't count the source itself
+                if sigma[w] == 0:
+                    continue
+                
+                for v in pred[w]:
+                    if v == w:
+                        continue
+
+                    c = (sigma[v] / sigma[w]) * (1.0 + delta[w])
+                    delta[v] += c
+
+                    e = (v, w) if v < w else (w, v)
+                    if e not in EB:
+                        continue
+                    EB[e] += c
                 if w != s:
                     CB[w] += delta[w]
 
         # Undirected graphs: each shortest path counted twice (s->t and t->s)
         for v in CB:
             CB[v] /= 2.0
+        for e in EB:
+            EB[e] /= 2.0
 
-        return CB
+        return CB, EB
 
 
             

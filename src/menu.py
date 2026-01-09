@@ -138,13 +138,19 @@ def __view_metrics(graph):
     degreeCentrality = degree_centrality(graph)
     closenessCentrality = closeness_centrality(graph)
     averageShortestPath = average_shortest_path(graph)
+    edgeBetweenness = edge_betweenness(graph)
 
     print(f"Node-to-Edge Ratio: {nodeToEdgeRatio}")
     print(f"Average Connectivity: {avgConnectivity}")
     print(f"Average Shortest Path : {averageShortestPath}")
-    print(f"Degree Centrality : {degreeCentrality}")
-    print(f"Betweeness Centrality : {betweennessCentrality}")
     print(f"Closeness Centrality : {closenessCentrality}")
+    print(f"Degree Centrality : {degreeCentrality}")
+    print(f"Betweenness Centrality : {betweennessCentrality}")
+
+    print("Edge Betweenness :")
+    for pair in edgeBetweenness:
+        print(f"    • {pair} = {edgeBetweenness[pair]}")
+    
     print(f"Nearest-Neighbour Frequency:")
     for node in nearestNeighbourFreq:
         print(f"    • {node} is the nearest neighbour to {len(nearestNeighbourFreq[node])} nodes {f': {nearestNeighbourFreq[node]}' if nearestNeighbourFreq[node] else ''}")
