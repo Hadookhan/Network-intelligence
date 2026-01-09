@@ -118,7 +118,7 @@ class PathFinder:
 
         for s in V:
             # Dijkstra + pred + sigma + stack order
-            dist, pred, sigma, S = self.dijkstras(s)
+            _, pred, sigma, S = self.dijkstras(s)
 
             # dependency accumulation
             delta = {v: 0.0 for v in V}

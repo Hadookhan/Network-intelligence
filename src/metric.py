@@ -44,7 +44,6 @@ def nearest_neighbour_frequency(graph):
     return node_contains_shortest_path_count
 
 def betweeness_centrality(graph):
-    nodes = graph.get_nodes()
     pf = PathFinder(graph)
 
     return pf.brandes()
