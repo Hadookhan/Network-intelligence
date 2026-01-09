@@ -44,7 +44,7 @@ def nearest_neighbour_frequency(graph: Graph) -> dict:
     
     return node_contains_shortest_path_count
 
-def betweeness_centrality(graph: Graph) -> dict:
+def betweenness_centrality(graph: Graph) -> dict:
     """
     Calculates the betweeness centrality for all nodes in graph 
     then stores and returns them in a dictionary.
@@ -104,10 +104,37 @@ def closeness_centrality(graph: Graph) -> dict:
     return Cc_map
 
 
-def average_shortest_path(graph: Graph):
-    pass
+def average_shortest_path(graph: Graph) -> float:
+    nodes = graph.get_nodes()
+    pf = PathFinder(graph)
 
-def edge_betweeness(graph: Graph):
+    total = 0.0
+    pair_count = 0
+
+    # To avoid double-counting in undirected graphs
+    seen = set()
+
+    for u in nodes:
+        dist, _, _, _ = pf.dijkstras(u)
+        if not dist:
+            continue
+
+        for v, d in dist.items():
+            if u == v:
+                continue
+
+            pair = (u, v) if u < v else (v, u)
+            if pair in seen:
+                continue
+
+            seen.add(pair)
+            total += d
+            pair_count += 1
+
+    return total / pair_count if pair_count > 0 else 0.0
+
+
+def edge_betweenness(graph: Graph):
     pass
 
 def flow_count(graph: Graph):

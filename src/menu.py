@@ -134,14 +134,16 @@ def __view_metrics(graph):
     nodeToEdgeRatio = node_to_edge_ratio(graph)
     avgConnectivity = average_connectivity(graph)
     nearestNeighbourFreq = nearest_neighbour_frequency(graph)
-    betweenessCentrality = betweeness_centrality(graph)
+    betweennessCentrality = betweenness_centrality(graph)
     degreeCentrality = degree_centrality(graph)
     closenessCentrality = closeness_centrality(graph)
+    averageShortestPath = average_shortest_path(graph)
 
     print(f"Node-to-Edge Ratio: {nodeToEdgeRatio}")
     print(f"Average Connectivity: {avgConnectivity}")
+    print(f"Average Shortest Path : {averageShortestPath}")
     print(f"Degree Centrality : {degreeCentrality}")
-    print(f"Betweeness Centrality : {betweenessCentrality}")
+    print(f"Betweeness Centrality : {betweennessCentrality}")
     print(f"Closeness Centrality : {closenessCentrality}")
     print(f"Nearest-Neighbour Frequency:")
     for node in nearestNeighbourFreq:
@@ -168,18 +170,25 @@ def __testing(graph):
                 continue
             fastest_path, _, _, _ = pf.dijkstras(start_node)
             for i, node in enumerate(fastest_path):
-                print(f"{i+1} : {start_node} -> {node} = {fastest_path[node]}")
+                if start_node == node:
+                    continue
+                print(f"{i+1} : {start_node} -> {node} = {fastest_path[node] if fastest_path[node] != float('inf') else None}")
 
 
             return
         if cmd == 2:
+            connected_nodes = 0
             start_node = input("Please enter a starting Node: ")
             if start_node not in graph_nodes:
                 print("Node does not exist.")
                 continue
             traversed_graph = pf.BFS(start_node)
             for i, node in enumerate(traversed_graph):
+                if start_node == node:
+                    continue
                 print(f"{i+1} : {node}")
+                connected_nodes += 1
+            print(f"{connected_nodes}/{len(graph_nodes)-1} connected. ({round((connected_nodes/(len(graph_nodes)-1))*100, 2)}% connectivity)")
             return
 
         
