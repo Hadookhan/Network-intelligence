@@ -84,6 +84,7 @@ class PathFinder:
         
         queue.put(start_id)
         visited.add(start_id)
+        cur_weight = 0
 
         while queue.qsize() > 0:
             cur_id = queue.get()

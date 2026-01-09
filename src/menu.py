@@ -135,15 +135,17 @@ def __view_metrics(graph):
     avgConnectivity = average_connectivity(graph)
     nearestNeighbourFreq = nearest_neighbour_frequency(graph)
     betweenessCentrality = betweeness_centrality(graph)
+    degreeCentrality = degree_centrality(graph)
+    closenessCentrality = closeness_centrality(graph)
 
     print(f"Node-to-Edge Ratio: {nodeToEdgeRatio}")
     print(f"Average Connectivity: {avgConnectivity}")
+    print(f"Degree Centrality : {degreeCentrality}")
     print(f"Betweeness Centrality : {betweenessCentrality}")
+    print(f"Closeness Centrality : {closenessCentrality}")
     print(f"Nearest-Neighbour Frequency:")
     for node in nearestNeighbourFreq:
         print(f"    • {node} is the nearest neighbour to {len(nearestNeighbourFreq[node])} nodes {f': {nearestNeighbourFreq[node]}' if nearestNeighbourFreq[node] else ''}")
-    
-    betweeness_centrality(graph)
 
 def __testing(graph):
     print("Please choose a test to run...\n")
@@ -164,9 +166,10 @@ def __testing(graph):
             if start_node not in graph_nodes:
                 print("Node does not exist.")
                 continue
-            fastest_path, _ = pf.dijkstras(start_node)
+            fastest_path, _, _, _ = pf.dijkstras(start_node)
             for i, node in enumerate(fastest_path):
                 print(f"{i+1} : {start_node} -> {node} = {fastest_path[node]}")
+
 
             return
         if cmd == 2:
