@@ -144,7 +144,17 @@ def edge_betweenness(graph: Graph):
     return pf.brandes()[1]
 
 def flow_count(graph: Graph):
-    pass
+    """
+    Calculates the measure of numers of shortest-path 
+    routes traversing each link, including end traffic 
+    point.
+    """
+    
+    pf = PathFinder(graph)
+
+    return pf.brandes()[2]
+        
+
 
 def redundancy_score(graph: Graph):
     pass

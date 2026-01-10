@@ -9,7 +9,8 @@ Additionally, this will pin-point grey areas in the network by suggesting edges 
 - Ability to remove/add vertices and edges
 - Calculates graph connectivity (unweighted BFS)
 - Finding Fastest path (Dijkstras - simulates OSPF path)
-- Calculates betweeness centrality of each node (Brandes' + Dijkstras)
+- Calculates betweenness centrality and edge betweenness of each node (Brandes' + Dijkstras)
+- Calculates average shortest path of graph
 - Created simple Menu Driven Interface for usability
 
 ## Future goal - 

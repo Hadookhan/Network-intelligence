@@ -15,6 +15,6 @@ def extract_topology(topology_file: str):
 
 # TODO: Rewrite current topology with updated topology
 # To keep persistance
-def dump_topology(t):
+def dump_topology(t: str):
     with open(f"{t}") as f:
         json.dumps

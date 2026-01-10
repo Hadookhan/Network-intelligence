@@ -4,7 +4,10 @@ from graph import Graph
 from metric import *
 
 
-def Display_Menu():
+def Display_Menu() -> None:
+    """
+        Displays Network intelligence Menu Interface.
+    """
     print("\n-----------------------------------")
     print("NETWORK INTELLIGENCE PROGRAM")
     print("-----------------------------------")
@@ -36,7 +39,7 @@ def Display_Menu():
 
 
 
-def __command():
+def __command() -> int:
     try:
         cmd = int(
             input(
@@ -50,14 +53,14 @@ def __command():
                 "8. Exit\n"
             ))
     except:
-        return
+        return 0
     
     if cmd <= 0 or cmd >= 9:
-        return
+        return 0
 
     return cmd
 
-def __add_node(graph):
+def __add_node(graph: Graph) -> None:
     valid_types = ["switch","router"]
     node_id = input("Enter new node name: ")
     if node_id in graph.get_nodes():
@@ -82,7 +85,7 @@ def __add_node(graph):
 
     return
 
-def __add_edge(graph):
+def __add_edge(graph: Graph) -> None:
     node1 = input("Enter first node: ")
     node2 = input("Enter second node: ")
 
@@ -105,7 +108,7 @@ def __add_edge(graph):
     print(f"Added edge ({node1} - {node2}) Cost: {weight}")
     return
 
-def __remove_node(graph):
+def __remove_node(graph: Graph) -> None:
     node_id = input("Enter node: ")
     if node_id not in graph.get_nodes():
         print("Node does not exist in current graph. Going back...")
@@ -114,7 +117,7 @@ def __remove_node(graph):
     print("Node removed.")
     return
 
-def __remove_edge(graph):
+def __remove_edge(graph: Graph) -> None:
     node1 = input("Enter first node: ")
     node2 = input("Enter second node: ")
 
@@ -130,7 +133,7 @@ def __remove_edge(graph):
     print("Edge removed.")
     return
 
-def __view_metrics(graph):
+def __view_metrics(graph: Graph) -> None:
     nodeToEdgeRatio = node_to_edge_ratio(graph)
     avgConnectivity = average_connectivity(graph)
     nearestNeighbourFreq = nearest_neighbour_frequency(graph)
@@ -139,23 +142,37 @@ def __view_metrics(graph):
     closenessCentrality = closeness_centrality(graph)
     averageShortestPath = average_shortest_path(graph)
     edgeBetweenness = edge_betweenness(graph)
+    flowCount = flow_count(graph)
 
     print(f"Node-to-Edge Ratio: {nodeToEdgeRatio}")
     print(f"Average Connectivity: {avgConnectivity}")
     print(f"Average Shortest Path : {averageShortestPath}")
-    print(f"Closeness Centrality : {closenessCentrality}")
-    print(f"Degree Centrality : {degreeCentrality}")
-    print(f"Betweenness Centrality : {betweennessCentrality}")
 
-    print("Edge Betweenness :")
+    print(f"Closeness Centrality:")
+    for node in closenessCentrality:
+        print(f"    • {node} = {closenessCentrality[node]}")
+
+    print("Degree Centrality:")
+    for node in degreeCentrality:
+        print(f"    • {node} = {degreeCentrality[node]}")
+
+    print("Betweenness Centrality:")
+    for node in betweennessCentrality:
+        print(f"    • {node} = {betweennessCentrality[node]}")
+
+    print("Edge Betweenness:")
     for pair in edgeBetweenness:
         print(f"    • {pair} = {edgeBetweenness[pair]}")
+    
+    print(f"Flow Count:")
+    for pair in flowCount:
+        print(f"    • {pair} = {flowCount[pair]}")
     
     print(f"Nearest-Neighbour Frequency:")
     for node in nearestNeighbourFreq:
         print(f"    • {node} is the nearest neighbour to {len(nearestNeighbourFreq[node])} nodes {f': {nearestNeighbourFreq[node]}' if nearestNeighbourFreq[node] else ''}")
 
-def __testing(graph):
+def __testing(graph: Graph) -> None:
     print("Please choose a test to run...\n")
     pf = PathFinder(graph)
     graph_nodes = graph.get_nodes()
@@ -179,8 +196,6 @@ def __testing(graph):
                 if start_node == node:
                     continue
                 print(f"{i+1} : {start_node} -> {node} = {fastest_path[node] if fastest_path[node] != float('inf') else None}")
-
-
             return
         if cmd == 2:
             connected_nodes = 0
