@@ -6,6 +6,7 @@ class Graph:
             Initialise a graph from a loaded JSON stored topology
             Automatically builds from JSON.
         """
+        self.topology_name = topology
         self.topology: dict[str, list[dict[str, str]]] = extract_topology(topology)
         self.vertices: dict[str, dict[str, float]] = {}
         self.__build_graph()
@@ -89,3 +90,9 @@ class Graph:
         """
         for node in self.vertices:
             print(f"{node} -> {self.vertices[node]}")
+
+    def clone(self):
+        g = Graph(self.topology_name)
+        for u, neighbours in self.vertices.items():
+            g.vertices[u] = neighbours.copy()
+        return g

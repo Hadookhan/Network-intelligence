@@ -154,6 +154,33 @@ def flow_count(graph: Graph):
 
     return pf.brandes()[2]
         
+def failure_impact_score(graph: Graph, rm_node: str = None, rm_edge: tuple = None) -> float:
+    """
+        Calculates the average shortest path when a node or an edge
+        has been removed.
+        Returns dictionary object mapping removed item to new resulting
+        average shortest path.
+    """
+
+    cpy_graph: Graph = graph.clone()
+    nodes = cpy_graph.get_nodes()
+
+    if rm_node:
+        if rm_node not in nodes:
+            raise ValueError("Node does not exist in current graph")
+        cpy_graph.remove_node(rm_node)
+    elif rm_edge and len(rm_edge) == 2:
+        if rm_edge[0] not in nodes or rm_edge[1] not in nodes:
+            raise ValueError("One or both nodes do not exist in current graph")
+        if rm_edge[1] not in cpy_graph.get_edges(rm_edge[0]):
+            raise ValueError("Edge does not exist in current graph")
+        cpy_graph.remove_edge(rm_edge[0], rm_edge[1])
+    else:
+        raise ValueError("Remove node or remove edge must be specified")
+
+    return average_shortest_path(cpy_graph)
+
+        
 
 
 def redundancy_score(graph: Graph):

@@ -144,44 +144,62 @@ def __view_metrics(graph: Graph) -> None:
     edgeBetweenness = edge_betweenness(graph)
     flowCount = flow_count(graph)
 
+    # Impact levels for users
+    impact_levels = {
+        0.0: "NO IMPACT",
+        0.1: "Very low",
+        0.2: "Very low",
+        0.3: "Low",
+        0.4: "Low",
+        0.5: "Mid",
+        0.6: "Mid",
+        0.7: "High",
+        0.8: "High",
+        0.9: "Very high",
+        1.0: "VERY HIGH"
+    }
+
     print(f"Node-to-Edge Ratio: {nodeToEdgeRatio}")
-    print(f"Average Connectivity: {avgConnectivity}")
-    print(f"Average Shortest Path : {averageShortestPath}")
+    print(f"Average Connectivity: {round(avgConnectivity, 2)}")
+    print(f"Average Shortest Path : {round(averageShortestPath, 2)}")
 
-    print(f"Closeness Centrality:")
-    for node in closenessCentrality:
-        print(f"    • {node} = {closenessCentrality[node]}")
-
-    print("Degree Centrality:")
-    for node in degreeCentrality:
-        print(f"    • {node} = {degreeCentrality[node]}")
-
-    print("Betweenness Centrality:")
-    for node in betweennessCentrality:
-        print(f"    • {node} = {betweennessCentrality[node]}")
-
-    print("Edge Betweenness:")
-    for pair in edgeBetweenness:
-        print(f"    • {pair} = {edgeBetweenness[pair]}")
-    
-    print(f"Flow Count:")
-    for pair in flowCount:
-        print(f"    • {pair} = {flowCount[pair]}")
-    
-    print(f"Nearest-Neighbour Frequency:")
+    print(f"Nearest-Neighbour Frequency:    (How many direct neighbours each node has)")
     for node in nearestNeighbourFreq:
         print(f"    • {node} is the nearest neighbour to {len(nearestNeighbourFreq[node])} nodes {f': {nearestNeighbourFreq[node]}' if nearestNeighbourFreq[node] else ''}")
+
+    print("Closeness Centrality:    (How quickly each node reaches all other nodes)")
+    for node in closenessCentrality:
+        print(f"    • {node} = {round(closenessCentrality[node], 2)}")
+
+    print("Degree Centrality:   (How many direct connection a node has relative to other nodes)")
+    for node in degreeCentrality:
+        print(f"    • {node} = {round(degreeCentrality[node], 2)} | Impact -> {impact_levels[round(degreeCentrality[node], 1)]}")
+
+    print("Betweenness Centrality:  (How often each node lies on the shortest path between other nodes)")
+    for node in betweennessCentrality:
+        print(f"    • {node} = {round(betweennessCentrality[node], 2)}")
+
+    print("Edge Betweenness:    (How often an edge lies on the shortest path between nodes)")
+    for pair in edgeBetweenness:
+        print(f"    • {pair[0]} - {pair[1]} = {round(edgeBetweenness[pair], 2)}")
+    
+    print(f"Flow Count:     (How many shortest path routes traverse an edge)")
+    for pair in flowCount:
+        print(f"    • {pair[0]} - {pair[1]} = {round(flowCount[pair], 2)}")
 
 def __testing(graph: Graph) -> None:
     print("Please choose a test to run...\n")
     pf = PathFinder(graph)
     graph_nodes = graph.get_nodes()
+    cur_shortest_path = average_shortest_path(graph)
 
     while True:
         try:
             cmd = int(input(
                 "1. Performance Test (Dijkstras): \n" \
-                "2. Connectivity Test (BFS): \n" 
+                "2. Connectivity Test (BFS): \n" \
+                "3. Average travel time on removed node: \n" \
+                "4. Average travel time on removed edge: \n" 
             ))
         except:
             print("Invalid command. Going back...")
@@ -209,7 +227,34 @@ def __testing(graph: Graph) -> None:
                     continue
                 print(f"{i+1} : {node}")
                 connected_nodes += 1
-            print(f"{connected_nodes}/{len(graph_nodes)-1} connected. ({round((connected_nodes/(len(graph_nodes)-1))*100, 2)}% connectivity)")
+            print(f"{connected_nodes}/{len(graph_nodes)-1} connected | ({round((connected_nodes/(len(graph_nodes)-1))*100, 2)}% connectivity)")
+            return
+        if cmd == 3:
+            rm_node = input("Enter a node to remove: ")
+            if rm_node not in graph_nodes:
+                print("Node does not exist.")
+                continue
+            failureImpactScore = failure_impact_score(graph, rm_node=rm_node)
+            print(f"Average shortest path BEFORE removing {rm_node}: {round(cur_shortest_path, 2)}")
+            print(f"Average shortest path AFTER removing {rm_node}: {round(failureImpactScore, 2)}")
+            print(f"Performance has {'INCREASED (how?)' if failureImpactScore < cur_shortest_path else 'DECREASED (valuable edge)' if failureImpactScore > cur_shortest_path else 'Not changed (redundant node)'}")
+            return
+        if cmd == 4:
+            print("You are removing an edge, please enter the two nodes of this edge: ")
+            node1 = input("Enter node 1: ")
+            node2 = input("Enter node 2: ")
+            if node1 not in graph_nodes or node2 not in graph_nodes:
+                print("One or both nodes do not exist.")
+                continue
+
+            edges = graph.get_edges(node1)
+            if node2 not in edges:
+                print("Edge does not exist in this graph")
+                continue
+            failureImpactScore = failure_impact_score(graph, rm_edge=(node1,node2))
+            print(f"Average shortest path BEFORE removing edge: ({node1} - {node2}): {round(cur_shortest_path, 2)}")
+            print(f"Average shortest path AFTER removing edge: ({node1} - {node2}): {round(failureImpactScore, 2)}")
+            print(f"Performance has {'INCREASED (how?)' if failureImpactScore < cur_shortest_path else 'DECREASED (valuable edge)' if failureImpactScore > cur_shortest_path else 'not changed (redundant edge)'}")
             return
 
         
