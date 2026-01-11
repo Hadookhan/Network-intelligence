@@ -155,7 +155,7 @@ class PathFinder:
                     visited.add(neighbour_id)
         return visited
     
-    def brandes(self) -> tuple:
+    def brandes(self, node1: str = None) -> tuple:
         """
             Brandes' will calculate the betweeness of nodes and
             edges in the graph using Dijkstras.
@@ -165,67 +165,130 @@ class PathFinder:
             Edge Betweeness,
             Edge flow.
         """
+
         V = list(self.graph.get_nodes().keys())
 
-        CB = {v: 0.0 for v in V} # Betweenness centrality
-        edge_flow = {} # flow count for each node
+        CB = {v: 0.0 for v in V} if not node1 else {node1: 0.0} # Betweenness centrality of either all nodes or nodes between source and target
         EB = {} # Edge betweenness
-
-        for u in V:
-            for v in self.graph.get_edges(u):
-                if u == v:
-                    continue
-                e = (u,v) if u < v else (v,u)
-                EB[e] = 0
-                edge_flow[e] = 0
-
-        for s in V:
-            # Distance + pred + sigma + stack order
-            _, pred, sigma, S = self.dijkstras(s)
-            flow_delta = {v: 0.0 for v in V}
-
-            for t in V:
-                if t != s and sigma[t] > 0:   # reachable
-                    flow_delta[t] += 1.0
-                    
-            # dependency accumulation
-            delta = {v: 0.0 for v in V}
-
-            # Process nodes in reverse order of distance from s
-            while S:
-                w = S.pop()
-                if sigma[w] == 0:
-                    continue
-                
-                for v in pred[w]:
-                    if v == w:
-                        continue
-                    
-                    share = (sigma[v] / sigma[w]) * flow_delta[v]
-                    c = (sigma[v] / sigma[w]) * (1.0 + delta[w])
-                    delta[v] += c
-
-                    e = (v, w) if v < w else (w, v)
-
-                    if e in edge_flow:
-                        edge_flow[e] += share
-
-                    flow_delta[v] += share
-
-                    if e not in EB:
-                        continue
-
-                    EB[e] += c
-
-                if w != s:
-                    CB[w] += delta[w]
+        edge_flow = {} # flow count for edges in fastest path
         
-        # Undirected graphs: each shortest path counted twice (s->t and t->s)
-        for v in CB:
-            CB[v] /= 2.0
-        for e in EB:
-            EB[e] /= 2.0
-        for f in edge_flow:
-            edge_flow[f] /= 2.0
+        if not node1:
+            for u in V:
+                for v in self.graph.get_edges(u):
+                    if u == v:
+                        continue
+                    e = (u,v) if u < v else (v,u)
+                    EB[e] = 0
+                    edge_flow[e] = 0
+
+            for s in V:
+                # Distance + pred + sigma + stack order
+                _, pred, sigma, S = self.dijkstras(s)
+                flow_delta = {v: 0.0 for v in V}
+
+                for t in V:
+                    if t != s and sigma[t] > 0:   # reachable
+                        flow_delta[t] += 1.0
+                        
+                # dependency accumulation
+                delta = {v: 0.0 for v in V}
+
+                # Process nodes in reverse order of distance from s
+                while S:
+                    w = S.pop()
+                    if sigma[w] == 0:
+                        continue
+                    
+                    for v in pred[w]:
+                        if v == w:
+                            continue
+                        
+                        share = (sigma[v] / sigma[w]) * flow_delta[w]
+                        c = (sigma[v] / sigma[w]) * (1.0 + delta[w])
+                        delta[v] += c
+
+                        e = (v, w) if v < w else (w, v)
+
+                        if e in edge_flow:
+                            edge_flow[e] += share
+
+                        flow_delta[v] += share
+
+                        if e not in EB:
+                            continue
+
+                        EB[e] += c
+
+                    if w != s:
+                        CB[w] += delta[w]
+            
+            # Undirected graphs: each shortest path counted twice (s->t and t->s)
+            for v in CB:
+                CB[v] /= 2.0
+            for e in EB:
+                EB[e] /= 2.0
+            for f in edge_flow:
+                edge_flow[f] /= 2.0
+        else:
+            # Single-node mode: compute CB for node1, and EB/edge_flow for edges incident to node1
+            if node1 not in V:
+                raise ValueError("Node does not exist in current graph")
+
+            edges = self.graph.get_edges(node1)
+            # initialise node1 neighbours
+            for neighbour in edges:
+                if neighbour == node1:
+                    continue
+                e = (node1, neighbour) if node1 < neighbour else (neighbour, node1)
+                EB[e] = 0.0
+                edge_flow[e] = 0.0
+
+            for s in V:
+                # Run Dijkstra from each source
+                _, pred, sigma, S = self.dijkstras(s)
+
+                # flow demand: 1 unit to every reachable target t != s
+                flow_delta = {v: 0.0 for v in V}
+                for t in V:
+                    if t != s and sigma[t] > 0:
+                        flow_delta[t] = 1.0
+
+                # Brandes dependency accumulation
+                delta = {v: 0.0 for v in V}
+
+                while S:
+                    w = S.pop()
+                    if sigma[w] == 0:
+                        continue
+
+                    for v in pred[w]:
+                        if v == w:
+                            continue
+
+                        share = (sigma[v] / sigma[w]) * flow_delta[w]
+                        c = (sigma[v] / sigma[w]) * (1.0 + delta[w])
+                        delta[v] += c
+
+                        e = (v, w) if v < w else (w, v)
+
+                        # Only track edges incident to node1
+                        if e in edge_flow:
+                            edge_flow[e] += share
+                        if e in EB:
+                            EB[e] += c
+
+                        flow_delta[v] += share
+
+                    if w != s and w == node1:
+                        CB[node1] += delta[w]
+
+            # Undirected correction (each s->t counted twice)
+            CB[node1] /= 2.0
+            for e in EB:
+                EB[e] /= 2.0
+            for e in edge_flow:
+                edge_flow[e] /= 2.0
+
+
 
         return CB, EB, edge_flow

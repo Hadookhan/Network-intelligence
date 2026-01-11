@@ -42,17 +42,8 @@ def nearest_neighbour_frequency(graph: Graph) -> dict:
             node_contains_shortest_path_count[cur_min_node].add(node)
     
     return node_contains_shortest_path_count
-
-def betweenness_centrality(graph: Graph) -> dict:
-    """
-    Calculates the betweenness centrality for all nodes in graph 
-    then stores and returns them in a dictionary.
-    """
-    pf = PathFinder(graph)
-
-    return pf.brandes()[0]
         
-def degree_centrality(graph: Graph) -> dict:
+def degree_centrality(graph: Graph, node1: str = None):
     """
     Calculates the degree centrality for all nodes in graph 
     then stores and returns them in a dictionary. Each value will be 
@@ -72,9 +63,9 @@ def degree_centrality(graph: Graph) -> dict:
         edges = graph.get_edges(node)
         Dc_map[node] = len(edges) / node_count
     
-    return Dc_map
+    return Dc_map if not node1 else Dc_map[node1]
 
-def closeness_centrality(graph: Graph) -> dict:
+def closeness_centrality(graph: Graph, node1: str = None):
     """
     Calculates the closeness centrality for all nodes in graph 
     then stores and returns them in a dictionary. Each value will be 
@@ -100,7 +91,7 @@ def closeness_centrality(graph: Graph) -> dict:
         else:
             Cc_map[node] = 0
 
-    return Cc_map
+    return Cc_map if not node1 else Cc_map[node1]
 
 
 def average_shortest_path(graph: Graph) -> float:
@@ -132,17 +123,27 @@ def average_shortest_path(graph: Graph) -> float:
 
     return total / pair_count if pair_count > 0 else 0.0
 
-
-def edge_betweenness(graph: Graph):
+def betweenness_centrality(graph: Graph, node1: str = None) -> dict:
     """
-    Calculates the edge betweenness for all nodes in graph 
+    Calculates the betweenness centrality for all nodes in graph 
+    or all shortest paths node1 is in,
     then stores and returns them in a dictionary.
     """
     pf = PathFinder(graph)
 
-    return pf.brandes()[1]
+    return pf.brandes()[0] if not node1 else pf.brandes(node1)[0]
 
-def flow_count(graph: Graph):
+def edge_betweenness(graph: Graph, node1: str = None) -> dict:
+    """
+    Calculates the edge betweenness for all nodes in graph 
+    or all incident edges from a source node,
+    then stores and returns them in a dictionary.
+    """
+    pf = PathFinder(graph)
+
+    return pf.brandes()[1] if not node1 else pf.brandes(node1)[1]
+
+def flow_count(graph: Graph, node1: str = None) -> dict:
     """
     Calculates the measure of numers of shortest-path 
     routes traversing each link, including end traffic 
@@ -151,15 +152,15 @@ def flow_count(graph: Graph):
     
     pf = PathFinder(graph)
 
-    return pf.brandes()[2]
+    return pf.brandes()[2] if not node1 else pf.brandes(node1)[2]
         
-def failure_impact_score(graph: Graph, rm_node: str = None, rm_edge: tuple = None) -> float:
+def failure_impact_score(graph: Graph, rm_node: str = None, rm_edge: tuple = None) -> tuple:
     """
         Calculates the average shortest path when a node or an edge
         has been removed.
-        Returns a float of the resulting average shortest path.
+        Returns a tuple of floats with the resulting average shortest path.
     """
-
+    cur_avg_shortest_path = average_shortest_path(graph)
     cpy_graph: Graph = graph.clone()
     nodes = cpy_graph.get_nodes()
 
@@ -175,14 +176,10 @@ def failure_impact_score(graph: Graph, rm_node: str = None, rm_edge: tuple = Non
         cpy_graph.remove_edge(rm_edge[0], rm_edge[1])
     else:
         raise ValueError("Remove node or remove edge must be specified")
+    
+    new_avg_shortest_path = average_shortest_path(cpy_graph)
 
-    return average_shortest_path(cpy_graph)
-
-        
-
-
-def redundancy_score(graph: Graph):
-    pass
+    return new_avg_shortest_path, new_avg_shortest_path/cur_avg_shortest_path
 
 
 

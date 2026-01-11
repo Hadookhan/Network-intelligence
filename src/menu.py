@@ -33,6 +33,8 @@ def Display_Menu() -> None:
             case 7:
                 __testing(g)
             case 8:
+                __predictive_testing(g)
+            case 9:
                 return
             case _:
                 print("Invalid input")
@@ -49,13 +51,14 @@ def __command() -> int:
                 "4. Delete node\n" \
                 "5. Delete edge\n" \
                 "6. View Metrics\n" \
-                "7. Testing\n"
-                "8. Exit\n"
+                "7. Testing\n" \
+                "8. Predictive Testing\n" \
+                "9. Exit\n"
             ))
     except:
         return 0
     
-    if cmd <= 0 or cmd >= 9:
+    if cmd <= 0 or cmd >= 10:
         return 0
 
     return cmd
@@ -134,6 +137,7 @@ def __remove_edge(graph: Graph) -> None:
     return
 
 def __view_metrics(graph: Graph) -> None:
+    nodes = graph.get_nodes()
     nodeToEdgeRatio = node_to_edge_ratio(graph)
     avgConnectivity = average_connectivity(graph)
     nearestNeighbourFreq = nearest_neighbour_frequency(graph)
@@ -198,8 +202,8 @@ def __testing(graph: Graph) -> None:
             cmd = int(input(
                 "1. Performance Test (Dijkstras): \n" \
                 "2. Connectivity Test (BFS): \n" \
-                "3. Average travel time on removed node: \n" \
-                "4. Average travel time on removed edge: \n" 
+                "3. Average Shortest Path on removed node: \n" \
+                "4. Average Shortest Path on removed edge: \n" 
             ))
         except:
             print("Invalid command. Going back...")
@@ -215,7 +219,7 @@ def __testing(graph: Graph) -> None:
                     continue
                 print(f"{i+1} : {start_node} -> {node} = {fastest_path[node] if fastest_path[node] != float('inf') else None}")
             return
-        if cmd == 2:
+        elif cmd == 2:
             connected_nodes = 0
             start_node = input("Please enter a starting Node: ")
             if start_node not in graph_nodes:
@@ -229,17 +233,19 @@ def __testing(graph: Graph) -> None:
                 connected_nodes += 1
             print(f"{connected_nodes}/{len(graph_nodes)-1} connected | ({round((connected_nodes/(len(graph_nodes)-1))*100, 2)}% connectivity)")
             return
-        if cmd == 3:
+        elif cmd == 3:
             rm_node = input("Enter a node to remove: ")
             if rm_node not in graph_nodes:
                 print("Node does not exist.")
                 continue
-            failureImpactScore = failure_impact_score(graph, rm_node=rm_node)
+            new_shortest_path, failureImpactScore = failure_impact_score(graph, rm_node=rm_node)
+            failureImpactScore = round(failureImpactScore, 3)
             print(f"Average shortest path BEFORE removing {rm_node}: {round(cur_shortest_path, 2)}")
-            print(f"Average shortest path AFTER removing {rm_node}: {round(failureImpactScore, 2)}")
-            print(f"Performance has {'INCREASED (how?)' if failureImpactScore < cur_shortest_path else 'DECREASED (valuable edge)' if failureImpactScore > cur_shortest_path else 'not changed (redundant node)'}")
+            print(f"Average shortest path AFTER removing {rm_node}: {round(new_shortest_path, 2)}")
+            print(f"Performance has {'INCREASED (how?)' if new_shortest_path < cur_shortest_path else 'DECREASED (valuable edge)' if new_shortest_path > cur_shortest_path else 'not changed (redundant node)'}")
+            print(f"Failure impact score: {failureImpactScore} | {round((failureImpactScore-1)*100, 1)}%")
             return
-        if cmd == 4:
+        elif cmd == 4:
             print("You are removing an edge, please enter the two nodes of this edge: ")
             node1 = input("Enter node 1: ")
             node2 = input("Enter node 2: ")
@@ -251,8 +257,59 @@ def __testing(graph: Graph) -> None:
             if node2 not in edges:
                 print("Edge does not exist in this graph")
                 continue
-            failureImpactScore = failure_impact_score(graph, rm_edge=(node1,node2))
+            new_shortest_path, failureImpactScore = failure_impact_score(graph, rm_edge=(node1,node2))
             print(f"Average shortest path BEFORE removing edge: ({node1} - {node2}): {round(cur_shortest_path, 2)}")
-            print(f"Average shortest path AFTER removing edge: ({node1} - {node2}): {round(failureImpactScore, 2)}")
-            print(f"Performance has {'INCREASED (how?)' if failureImpactScore < cur_shortest_path else 'DECREASED (valuable edge)' if failureImpactScore > cur_shortest_path else 'not changed (redundant edge)'}")
+            print(f"Average shortest path AFTER removing edge: ({node1} - {node2}): {round(new_shortest_path, 2)}")
+            print(f"Performance has {'INCREASED (how?)' if new_shortest_path < cur_shortest_path else 'DECREASED (valuable edge)' if new_shortest_path > cur_shortest_path else 'not changed (redundant edge)'}")
+            print(f"Failure impact score: {failureImpactScore} | {round((failureImpactScore-1)*100, 1)}%")
             return
+        else:
+            print("Invalid command. Going back...")
+            return
+        
+def __predictive_testing(graph: Graph) -> None:
+    nodes = graph.get_nodes()
+    target = input(
+        "Enter a target feature -\n"
+        "- Betweenness Centrality (bc)\n" \
+        "- Closeness Centrality (cc)\n" \
+        "- Degree Centrality (dc)\n" \
+        "- Flow Count (fc)\n" \
+        "- Delta (Δ) Average Shortest Path (asp)\n"
+        )
+    
+
+    match target.lower():
+        case "bc":
+            target = "betweenness"
+        case "cc":
+            target = "closeness"
+        case "dc":
+            target = "degree"
+        case "fc":
+            target = "flow_count"
+        case "asp":
+            target = "delta_asp"
+        case _:
+            print("Invalid target. Going back...")
+            return
+
+    rows = []
+    for node in nodes:
+        flow_c = 0
+        flowCount = flow_count(graph, node)
+        for neighbour in flowCount:
+            flow_c += flowCount[neighbour]
+        rows.append(
+            {
+                "degree": degree_centrality(graph, node),
+                "closeness": closeness_centrality(graph, node),
+                "betweenness": betweenness_centrality(graph, node)[node],
+                "flow_count": flow_c,
+                "delta_asp": failure_impact_score(graph, node),
+            }
+        )
+    
+    model = Intelligence(rows, target)
+    model.display_model_score()
+    model.save()
