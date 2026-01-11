@@ -51,7 +51,7 @@ class PathFinder:
             Returns a tuple in order of:
             Shortest distances from start node to every other node in graph,
             Predecessor nodes visited during traversal to every other node,
-            Sigma function of every node and its corresponding sigma tranformation,
+            Sigma function, used to count number of shortest paths,
             Stack of all nodes in nondecreasing distance order.
         """
         adj = self.graph.get_nodes()

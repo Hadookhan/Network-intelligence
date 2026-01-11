@@ -163,7 +163,7 @@ def __view_metrics(graph: Graph) -> None:
     print(f"Average Connectivity: {round(avgConnectivity, 2)}")
     print(f"Average Shortest Path : {round(averageShortestPath, 2)}")
 
-    print(f"Nearest-Neighbour Frequency:    (How many direct neighbours each node has)")
+    print(f"Nearest-Neighbour Frequency:    (How often a node is the closest choice from another node.)")
     for node in nearestNeighbourFreq:
         print(f"    • {node} is the nearest neighbour to {len(nearestNeighbourFreq[node])} nodes {f': {nearestNeighbourFreq[node]}' if nearestNeighbourFreq[node] else ''}")
 
@@ -183,7 +183,7 @@ def __view_metrics(graph: Graph) -> None:
     for pair in edgeBetweenness:
         print(f"    • {pair[0]} - {pair[1]} = {round(edgeBetweenness[pair], 2)}")
     
-    print(f"Flow Count:     (How many shortest path routes traverse an edge)")
+    print(f"Flow Count:     (Normalised shortest-path flow share)")
     for pair in flowCount:
         print(f"    • {pair[0]} - {pair[1]} = {round(flowCount[pair], 2)}")
 
@@ -237,7 +237,7 @@ def __testing(graph: Graph) -> None:
             failureImpactScore = failure_impact_score(graph, rm_node=rm_node)
             print(f"Average shortest path BEFORE removing {rm_node}: {round(cur_shortest_path, 2)}")
             print(f"Average shortest path AFTER removing {rm_node}: {round(failureImpactScore, 2)}")
-            print(f"Performance has {'INCREASED (how?)' if failureImpactScore < cur_shortest_path else 'DECREASED (valuable edge)' if failureImpactScore > cur_shortest_path else 'Not changed (redundant node)'}")
+            print(f"Performance has {'INCREASED (how?)' if failureImpactScore < cur_shortest_path else 'DECREASED (valuable edge)' if failureImpactScore > cur_shortest_path else 'not changed (redundant node)'}")
             return
         if cmd == 4:
             print("You are removing an edge, please enter the two nodes of this edge: ")
@@ -256,10 +256,3 @@ def __testing(graph: Graph) -> None:
             print(f"Average shortest path AFTER removing edge: ({node1} - {node2}): {round(failureImpactScore, 2)}")
             print(f"Performance has {'INCREASED (how?)' if failureImpactScore < cur_shortest_path else 'DECREASED (valuable edge)' if failureImpactScore > cur_shortest_path else 'not changed (redundant edge)'}")
             return
-
-        
-        
-        
-
-        
-    

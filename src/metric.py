@@ -17,7 +17,6 @@ def average_connectivity(graph: Graph) -> float:
     for node in graph.get_nodes():
         for _ in graph.get_edges(node):
             m += 1
-    m = m*2
     return m/n
 
 def nearest_neighbour_frequency(graph: Graph) -> dict:
@@ -158,8 +157,7 @@ def failure_impact_score(graph: Graph, rm_node: str = None, rm_edge: tuple = Non
     """
         Calculates the average shortest path when a node or an edge
         has been removed.
-        Returns dictionary object mapping removed item to new resulting
-        average shortest path.
+        Returns a float of the resulting average shortest path.
     """
 
     cpy_graph: Graph = graph.clone()
