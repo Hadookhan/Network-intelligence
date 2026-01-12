@@ -7,3 +7,4 @@ venv/
 /*.spec
 src/build/
 src/dist/
+src/simulation_dataset.csv
