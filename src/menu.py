@@ -300,6 +300,11 @@ def __predictive_testing(graph: Graph, sample_size: int = 50) -> None:
         __gen_rows(g, i, rows)
         
     model = Intelligence(rows, target)
+
+    if target == "delta_asp":
+        risk_score = __risk_score(graph, model)
+        print(f"Risk score: {risk_score}")
+
     model.display_model_score()
     model.save()
 
@@ -332,8 +337,8 @@ def __gen_rows(graph: Graph, id: int, rows: list = []):
 # models congestion on edges
 def __perturb_weights_once(g: Graph, low=0.8, high=1.2):
     seen = set()
-    for u in g.get_nodes().keys():
-        for v, w in g.get_edges(u).items():  # assuming dict neighbor->weight
+    for u in g.get_nodes():
+        for v, w in g.get_edges(u).items():
             e = (u, v) if u < v else (v, u)
             if e in seen:
                 continue
@@ -346,5 +351,41 @@ def __perturb_weights_once(g: Graph, low=0.8, high=1.2):
             g.get_edges(u)[v] = new_w
             g.get_edges(v)[u] = new_w
 
-def __remove_non_critical_edge(graph: Graph, edge: tuple):
-    pass
+def __risk_score(graph: Graph, model: Intelligence):
+    nodes = graph.get_nodes()
+
+    failure_prob = 1/len(nodes)
+    risk = 0.0
+    pred_asp = 0.0
+
+    X_current = []
+
+    dc = degree_centrality(graph)
+    cc = closeness_centrality(graph)
+    bc = betweenness_centrality(graph)
+
+    for n in nodes:
+        flow_c = 0
+        flowCount = flow_count(graph, n)
+        for neighbour in flowCount:
+            flow_c += flowCount[neighbour]
+        
+        X_current.append([dc[n], cc[n], bc[n], flow_c])
+
+
+    pred_asp += model.predict(X_current)
+
+
+    risk += failure_prob * pred_asp
+    
+    return risk
+
+# def __max_risk_score(graph: Graph, model: Intelligence):
+#     nodes = graph.get_nodes()
+
+#     max_risk = 0.0
+
+#     for node in nodes:
+#         _, max_risk = max(model, max_risk)
+    
+#     return max_risk

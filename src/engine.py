@@ -1,6 +1,8 @@
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error
 import pandas as pd
+import math
 
 class Intelligence:
     def __init__(self, rows: list[dict], target: str) -> None:
@@ -32,7 +34,33 @@ class Intelligence:
         return model
 
     def display_model_score(self) -> None:
-        print(f"R^2: {self.__model.score(self.__X_test, self.__y_test)}")
+        print(f"R^2: {self.r_squared()}")
+        print(f"MAE (Mean Abs Error): {self.mae()}")
+        print(f"RMSE (Root Mean Square Error): {self.rmse()}")
+
+    def r_squared(self) -> float:
+        """
+            Calculates variance of a feature
+        """
+        return self.__model.score(self.__X_test, self.__y_test)
+
+    def mae(self) -> float:
+        """
+            Average error of prediction compared to real values
+        """
+        y_pred = self.__model.predict(self.__X_test)
+        return mean_absolute_error(self.__y_test, y_pred)
+
+    def rmse(self) -> float:
+        """
+            Error of worst prediction
+        """
+        y_pred = self.__model.predict(self.__X_test)
+        return math.sqrt(mean_squared_error(self.__y_test, y_pred))
 
     def save(self) -> None:
         self.__df.to_csv("simulation_dataset.csv", index=False)
+
+    def predict(self, X: list[list[float]]) -> float:
+        preds = self.__model.predict(X)
+        return float(sum(preds) / len(preds))
