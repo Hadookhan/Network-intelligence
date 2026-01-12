@@ -1,3 +1,4 @@
+import random as rand
 from pathfinder import PathFinder
 from engine import Intelligence
 from graph import Graph
@@ -33,7 +34,7 @@ def Display_Menu() -> None:
             case 7:
                 __testing(g)
             case 8:
-                __predictive_testing(g)
+                __predictive_testing(g, 500)
             case 9:
                 return
             case _:
@@ -267,8 +268,7 @@ def __testing(graph: Graph) -> None:
             print("Invalid command. Going back...")
             return
         
-def __predictive_testing(graph: Graph) -> None:
-    nodes = graph.get_nodes()
+def __predictive_testing(graph: Graph, sample_size: int = 50) -> None:
     target = input(
         "Enter a target feature -\n"
         "- Betweenness Centrality (bc)\n" \
@@ -278,6 +278,7 @@ def __predictive_testing(graph: Graph) -> None:
         "- Delta (Δ) Average Shortest Path (asp)\n"
         )
     
+    rows = []
 
     match target.lower():
         case "bc":
@@ -293,8 +294,24 @@ def __predictive_testing(graph: Graph) -> None:
         case _:
             print("Invalid target. Going back...")
             return
+    
+    for i in range(sample_size):
+        g = graph.clone()
+        __gen_rows(g, i, rows)
+        
+    model = Intelligence(rows, target)
+    model.display_model_score()
+    model.save()
 
-    rows = []
+def __gen_rows(graph: Graph, id: int, rows: list = []):
+    nodes = graph.get_nodes()
+
+    __perturb_weights_once(graph)
+
+    bc = betweenness_centrality(graph)
+    cc = closeness_centrality(graph)
+    dc = degree_centrality(graph)
+
     for node in nodes:
         flow_c = 0
         flowCount = flow_count(graph, node)
@@ -302,14 +319,32 @@ def __predictive_testing(graph: Graph) -> None:
             flow_c += flowCount[neighbour]
         rows.append(
             {
-                "degree": degree_centrality(graph, node),
-                "closeness": closeness_centrality(graph, node),
-                "betweenness": betweenness_centrality(graph, node)[node],
+                "variant_id": id,
+                "node": node,
+                "degree": dc[node],
+                "closeness": cc[node],
+                "betweenness": bc[node],
                 "flow_count": flow_c,
-                "delta_asp": failure_impact_score(graph, node),
+                "delta_asp": failure_impact_score(graph, node)[1],
             }
         )
-    
-    model = Intelligence(rows, target)
-    model.display_model_score()
-    model.save()
+
+# models congestion on edges
+def __perturb_weights_once(g: Graph, low=0.8, high=1.2):
+    seen = set()
+    for u in g.get_nodes().keys():
+        for v, w in g.get_edges(u).items():  # assuming dict neighbor->weight
+            e = (u, v) if u < v else (v, u)
+            if e in seen:
+                continue
+            seen.add(e)
+
+            factor = rand.uniform(low, high)
+            new_w = w * factor
+
+            # update both directions (undirected)
+            g.get_edges(u)[v] = new_w
+            g.get_edges(v)[u] = new_w
+
+def __remove_non_critical_edge(graph: Graph, edge: tuple):
+    pass
