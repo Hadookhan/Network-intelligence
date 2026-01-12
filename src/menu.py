@@ -1,4 +1,5 @@
 import random as rand
+import pandas as pd
 from pathfinder import PathFinder
 from engine import Intelligence
 from graph import Graph
@@ -356,9 +357,8 @@ def __risk_score(graph: Graph, model: Intelligence):
 
     failure_prob = 1/len(nodes)
     risk = 0.0
-    pred_asp = 0.0
 
-    X_current = []
+    rows = []
 
     dc = degree_centrality(graph)
     cc = closeness_centrality(graph)
@@ -370,10 +370,16 @@ def __risk_score(graph: Graph, model: Intelligence):
         for neighbour in flowCount:
             flow_c += flowCount[neighbour]
         
-        X_current.append([dc[n], cc[n], bc[n], flow_c])
+        rows.append({
+            "degree": dc[n],
+            "closeness": cc[n],
+            "betweenness": bc[n],
+            "flow_count": flow_c
+            })
 
+    X_df = pd.DataFrame(rows)
 
-    pred_asp += model.predict(X_current)
+    pred_asp = model.predict(X_df)
 
 
     risk += failure_prob * pred_asp

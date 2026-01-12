@@ -12,8 +12,9 @@ class Intelligence:
         self.__X = self.__df.drop(columns=[target]) # X = features
         self.__y = self.__df[target] # Y = target
 
-        self.__cats = ["node"]
+        self.__cats = ["node", "variant_id"]
         self.__X = self.__encode_categoricals() if self.__cats else self.__X
+        self.__X = self.__df.drop(columns=[target] + [c for c in self.__cats if c in self.__df.columns])
 
         self.__X_train, self.__X_test, self.__y_train, self.__y_test = self.__train_test_split()
 
