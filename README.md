@@ -12,7 +12,9 @@ Additionally, this will pin-point grey areas in the network by suggesting edges 
 - Calculates betweenness centrality, edge betweenness, and flow count of each node (Brandes' + Dijkstras)
 - Calculates average shortest path (ASP) of graph
 - Created simple Menu Driven Interface for usability
-- Predicts risk score using RandomForestRegressor and metrics as features
+- Trained RandomForestRegressor Model with ~97% accuracy using metrics as features
+- Predicts risk score using ASP as feature target
 
-## Future goal - 
-Using current metrics, implement an intelligence which can analyse current graph and predict better connectivity.
+## Future goals - 
+- Model will suggest improvements to the network
+- Create GUI in replacement for Menu Interface
