@@ -9,9 +9,10 @@ Additionally, this will pin-point grey areas in the network by suggesting edges 
 - Ability to remove/add vertices and edges
 - Calculates graph connectivity (unweighted BFS)
 - Finding Fastest path (Dijkstras - simulates OSPF path)
-- Calculates betweenness centrality and edge betweenness of each node (Brandes' + Dijkstras)
-- Calculates average shortest path of graph
+- Calculates betweenness centrality, edge betweenness, and flow count of each node (Brandes' + Dijkstras)
+- Calculates average shortest path (ASP) of graph
 - Created simple Menu Driven Interface for usability
+- Predicts risk score using RandomForestRegressor and metrics as features
 
 ## Future goal - 
 Using current metrics, implement an intelligence which can analyse current graph and predict better connectivity.

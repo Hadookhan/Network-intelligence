@@ -35,6 +35,7 @@ class Intelligence:
         return model
 
     def display_model_score(self) -> None:
+        print("------------ Model Stats ------------")
         print(f"R^2: {self.r_squared()}")
         print(f"MAE (Mean Abs Error): {self.mae()}")
         print(f"RMSE (Root Mean Square Error): {self.rmse()}")

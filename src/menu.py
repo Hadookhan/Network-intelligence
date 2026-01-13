@@ -304,7 +304,7 @@ def __predictive_testing(graph: Graph, sample_size: int = 50) -> None:
 
     if target == "delta_asp":
         risk_score = __risk_score(graph, model)
-        print(f"Risk score: {risk_score}")
+        print(f"Risk score: {risk_score} | ASP decreases by around {round(risk_score, 2)} speed with an equal probability on one removed node")
 
     model.display_model_score()
     model.save()
