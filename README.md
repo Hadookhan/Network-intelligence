@@ -18,3 +18,6 @@ Additionally, this will pin-point grey areas in the network by suggesting edges 
 ## Future goals - 
 - Model will suggest improvements to the network
 - Create GUI in replacement for Menu Interface
+
+## Network design in Packet Tracer
+![Network Design](./photos/Network_Structure.png)
