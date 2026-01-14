@@ -1,5 +1,6 @@
 import random as rand
 import pandas as pd
+from sklearn.model_selection import train_test_split
 from pathfinder import PathFinder
 from engine import Intelligence
 from graph import Graph
@@ -295,16 +296,33 @@ def __predictive_testing(graph: Graph, sample_size: int = 50) -> None:
         case _:
             print("Invalid target. Going back...")
             return
+        
+    graphs: list[Graph] = []
     
     for i in range(sample_size):
         g = graph.clone()
+        __perturb_weights_once(g)
+        graphs.append(g)
+    
+    train_graphs, test_graphs = train_test_split(
+    graphs,
+    test_size=0.2,
+    random_state=42
+    )
+
+    for i, g in enumerate(train_graphs):
         __gen_rows(g, i, rows)
         
     model = Intelligence(rows, target)
+    max_risk = float("-inf")
 
     if target == "delta_asp":
-        risk_score = __risk_score(graph, model)
-        print(f"Risk score: {risk_score} | ASP decreases by around {round(risk_score, 2)} speed with an equal probability on one removed node")
+        risk_score = __risk_score(model, *test_graphs)
+        max_risk, worst_node = __max_risk_score(model, max_risk, *test_graphs)
+        spike = __risk_spike(risk_score, max_risk)
+        print(f"Risk score: {risk_score} | ASP increases by around {round(risk_score, 2)} path cost on average with an equal probability on one removed node")
+        print(f"Max risk score: {max_risk} | ASP increases by around {round(max_risk, 2)} path cost on the most critical singular node failure -> Removed {worst_node}")
+        print(f"Worst case is {round((spike-1)*100, 1)}% worse than average")
 
     model.display_model_score()
     model.save()
@@ -352,46 +370,72 @@ def __perturb_weights_once(g: Graph, low=0.8, high=1.2):
             g.get_edges(u)[v] = new_w
             g.get_edges(v)[u] = new_w
 
-def __risk_score(graph: Graph, model: Intelligence):
-    nodes = graph.get_nodes()
-
-    failure_prob = 1/len(nodes)
+def __risk_score(model: Intelligence, *graphs: Graph):
+    
+    rows = []
     risk = 0.0
 
-    rows = []
+    for graph in graphs:
+        nodes = graph.get_nodes()
+        dc = degree_centrality(graph)
+        cc = closeness_centrality(graph)
+        bc = betweenness_centrality(graph)
 
-    dc = degree_centrality(graph)
-    cc = closeness_centrality(graph)
-    bc = betweenness_centrality(graph)
-
-    for n in nodes:
-        flow_c = 0
-        flowCount = flow_count(graph, n)
-        for neighbour in flowCount:
-            flow_c += flowCount[neighbour]
-        
-        rows.append({
-            "degree": dc[n],
-            "closeness": cc[n],
-            "betweenness": bc[n],
-            "flow_count": flow_c
-            })
+        for n in nodes:
+            flow_c = 0
+            flowCount = flow_count(graph, n)
+            for neighbour in flowCount:
+                flow_c += flowCount[neighbour]
+            
+            rows.append({
+                "degree": dc[n],
+                "closeness": cc[n],
+                "betweenness": bc[n],
+                "flow_count": flow_c
+                })
 
     X_df = pd.DataFrame(rows)
 
-    pred_asp = model.predict(X_df)
+    preds = model.predict(X_df)
 
-
-    risk += failure_prob * pred_asp
+    risk += preds.mean()
     
     return risk
 
-# def __max_risk_score(graph: Graph, model: Intelligence):
-#     nodes = graph.get_nodes()
+def __max_risk_score(model: Intelligence, max_risk: float, *graphs: Graph):
 
-#     max_risk = 0.0
+    rows = []
+    node_index = []
 
-#     for node in nodes:
-#         _, max_risk = max(model, max_risk)
-    
-#     return max_risk
+    for i, graph in enumerate(graphs):
+        nodes = graph.get_nodes()
+        dc = degree_centrality(graph)
+        cc = closeness_centrality(graph)
+        bc = betweenness_centrality(graph)
+        for n in nodes:
+            flow_c = 0
+            flowCount = flow_count(graph, n)
+            for neighbour in flowCount:
+                flow_c += flowCount[neighbour]
+            
+            rows.append({
+                "degree": dc[n],
+                "closeness": cc[n],
+                "betweenness": bc[n],
+                "flow_count": flow_c
+                })
+            
+            node_index.append((i, n))
+
+    X_df = pd.DataFrame(rows)
+
+    preds = model.predict(X_df)
+
+    i = int(preds.argmax())
+    worst_case = float(preds[i])
+    _, worst_node = node_index[i]
+
+    return max(max_risk, worst_case), worst_node
+
+def __risk_spike(mean_risk: float, max_risk: float) -> float:
+    return max_risk/mean_risk

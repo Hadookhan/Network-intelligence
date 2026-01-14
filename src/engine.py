@@ -2,6 +2,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 import pandas as pd
+import numpy as np
 import math
 
 class Intelligence:
@@ -63,6 +64,5 @@ class Intelligence:
     def save(self) -> None:
         self.__df.to_csv("simulation_dataset.csv", index=False)
 
-    def predict(self, X: list[list[float]]) -> float:
-        preds = self.__model.predict(X)
-        return float(sum(preds) / len(preds))
+    def predict(self, X: list[list[float]]) -> np.ndarray:
+        return self.__model.predict(X)
