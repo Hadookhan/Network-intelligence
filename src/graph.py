@@ -91,45 +91,13 @@ class Graph:
         for node in self.vertices:
             print(f"{node} -> {self.vertices[node]}")
 
+    def clone(self) -> object:
+        g = Graph.__new__(Graph)  # bypass __init__ (so it doesn't load JSON)
 
-    # Need to fix this - append correct type and site (error when running prediction on edited graph)
-    def to_json(self, path: str):
-        nodes = []
-        links = []
-        seen = set()
+        g.vertices = {u: nbrs.copy() for u, nbrs in self.vertices.items()}
 
-        for u, neighbours in self.vertices.items():
-            nodes.append(
-                {"id": u,
-                 "type": None,
-                 "site": None}
-                )
+        if hasattr(self, "nodes"):
+            g.nodes = {k: v.copy() if isinstance(v, dict) else v for k, v in self.nodes.items()}
 
-            for v, w in neighbours.items():
-                e = (u, v) if u < v else (v, u)
-                if e in seen:
-                    continue
-                seen.add(e)
-
-                links.append({
-                    "source": u,
-                    "target": v,
-                    "cost": w
-                })
-
-        data = {
-            "nodes": nodes,
-            "links": links
-        }
-
-        with open(path, "w") as f:
-            json.dump(data, f, indent=2)
-
-
-    def clone(self):
-        new_top = "edited_topology.json"
-        self.to_json(new_top)
-        g = Graph(new_top)
-        for u, neighbours in self.vertices.items():
-            g.vertices[u] = neighbours.copy()
         return g
+

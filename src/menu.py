@@ -36,7 +36,7 @@ def Display_Menu() -> None:
             case 7:
                 __testing(g)
             case 8:
-                __predictive_testing(g, 500)
+                __predictive_testing(g, 200)
             case 9:
                 return
             case _:
@@ -326,7 +326,7 @@ def __predictive_testing(graph: Graph, sample_size: int = 50) -> None:
     model.display_model_score()
     model.save()
 
-def __gen_rows(graph: Graph, id: int, rows: list = []):
+def __gen_rows(graph: Graph, id: int, rows: list = []) -> None:
     nodes = graph.get_nodes()
 
     __perturb_weights_once(graph)
@@ -353,7 +353,7 @@ def __gen_rows(graph: Graph, id: int, rows: list = []):
         )
 
 # models congestion on edges
-def __perturb_weights_once(g: Graph, low=0.8, high=1.2):
+def __perturb_weights_once(g: Graph, low=0.8, high=1.2) -> None:
     seen = set()
     for u in g.get_nodes():
         for v, w in g.get_edges(u).items():
@@ -369,7 +369,7 @@ def __perturb_weights_once(g: Graph, low=0.8, high=1.2):
             g.get_edges(u)[v] = new_w
             g.get_edges(v)[u] = new_w
 
-def __risk_score(model: Intelligence, *graphs: Graph):
+def __risk_score(model: Intelligence, *graphs: Graph) -> float:
     
     rows = []
     risk = 0.0
@@ -401,7 +401,7 @@ def __risk_score(model: Intelligence, *graphs: Graph):
     
     return risk
 
-def __max_risk_score(model: Intelligence, max_risk: float, *graphs: Graph):
+def __max_risk_score(model: Intelligence, max_risk: float, *graphs: Graph) -> float:
 
     rows = []
     node_index = []
