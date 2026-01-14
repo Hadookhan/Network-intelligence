@@ -8,3 +8,4 @@ venv/
 src/build/
 src/dist/
 src/simulation_dataset.csv
+src/edited_topology.json

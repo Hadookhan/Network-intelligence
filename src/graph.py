@@ -1,12 +1,12 @@
 from load_topology import extract_topology
+import json
 
 class Graph:
-    def __init__(self, topology: str) -> None:
+    def __init__(self, topology: str = "topology.json") -> None:
         """
             Initialise a graph from a loaded JSON stored topology
             Automatically builds from JSON.
         """
-        self.topology_name = topology
         self.topology: dict[str, list[dict[str, str]]] = extract_topology(topology)
         self.vertices: dict[str, dict[str, float]] = {}
         self.__build_graph()
@@ -91,8 +91,45 @@ class Graph:
         for node in self.vertices:
             print(f"{node} -> {self.vertices[node]}")
 
+
+    # Need to fix this - append correct type and site (error when running prediction on edited graph)
+    def to_json(self, path: str):
+        nodes = []
+        links = []
+        seen = set()
+
+        for u, neighbours in self.vertices.items():
+            nodes.append(
+                {"id": u,
+                 "type": None,
+                 "site": None}
+                )
+
+            for v, w in neighbours.items():
+                e = (u, v) if u < v else (v, u)
+                if e in seen:
+                    continue
+                seen.add(e)
+
+                links.append({
+                    "source": u,
+                    "target": v,
+                    "cost": w
+                })
+
+        data = {
+            "nodes": nodes,
+            "links": links
+        }
+
+        with open(path, "w") as f:
+            json.dump(data, f, indent=2)
+
+
     def clone(self):
-        g = Graph(self.topology_name)
+        new_top = "edited_topology.json"
+        self.to_json(new_top)
+        g = Graph(new_top)
         for u, neighbours in self.vertices.items():
             g.vertices[u] = neighbours.copy()
         return g

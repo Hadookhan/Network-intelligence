@@ -13,7 +13,7 @@ Additionally, this will pin-point grey areas in the network by suggesting edges 
 - Calculates average shortest path (ASP) of graph
 - Created simple Menu Driven Interface for usability
 - Trained RandomForestRegressor Model with ~97% accuracy using metrics as features
-- Predicts risk score using ASP as feature target
+- Predicts average and max risk score using ASP as feature target
 
 ## Future goals - 
 - Model will suggest improvements to the network

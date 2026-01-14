@@ -140,7 +140,6 @@ def __remove_edge(graph: Graph) -> None:
     return
 
 def __view_metrics(graph: Graph) -> None:
-    nodes = graph.get_nodes()
     nodeToEdgeRatio = node_to_edge_ratio(graph)
     avgConnectivity = average_connectivity(graph)
     nearestNeighbourFreq = nearest_neighbour_frequency(graph)
